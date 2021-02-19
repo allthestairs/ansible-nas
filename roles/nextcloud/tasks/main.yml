@@ -10,7 +10,7 @@
 - name: Nextcloud Mysql Docker Container
   docker_container:
     name: nextcloud-mysql
-    image: mysql:5.7
+    image: mysql:8.0
     pull: true
     volumes:
       - "{{ nextcloud_data_directory }}/mysql:/var/lib/mysql:rw"
@@ -22,18 +22,28 @@
     restart_policy: unless-stopped
     memory: 1g
 
+- name: Nextcloud Redis Docker Container
+  docker_container:
+    name: nextcloud-redis
+    image: redis:6
+    pull: true
+    restart_policy: unless-stopped
+    memory: 1g
+
 - name: Nextcloud Docker Container
   docker_container:
     name: nextcloud
-    image: nextcloud:14
+    image: nextcloud
     pull: true
     links:
         - nextcloud-mysql:mysql
+        - nextcloud-redis:redis
     volumes:
       - "{{ nextcloud_data_directory }}/nextcloud:/var/www/html:rw"
     ports:
       - "{{ nextcloud_port }}:80"
     env:
+      REDIS_HOST: redis
       MYSQL_HOST: "mysql"
       MYSQL_DATABASE: "nextcloud"
       MYSQL_USER: "{{ nextcloud_sql_user }}"
@@ -48,4 +58,3 @@
       traefik.http.routers.nextcloud.tls.domains[0].main: "{{ ansible_nas_domain }}"
       traefik.http.routers.nextcloud.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
       traefik.http.services.nextcloud.loadbalancer.server.port: "80"
-
