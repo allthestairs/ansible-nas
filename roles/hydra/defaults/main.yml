@@ -1,0 +1,14 @@
+---
+hydra_enabled: false
+hydra_available_externally: "false"
+
+# directories
+hydra_download_directory: "{{ downloads_root }}"
+hydra_data_directory: "{{ docker_home }}/hydra/config"
+
+# uid / gid
+hydra_user_id: "0"
+hydra_group_id: "0"
+
+hydra_port: "5076"
+hydra_hostname: "hydra"

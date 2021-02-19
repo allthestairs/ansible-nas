@@ -198,10 +198,10 @@
         - radarr
       when: (radarr_enabled | default(False))
 
-    - role: radarr
+    - role: hydra
       tags:
-        - radarr
-      when: (radarr_enabled | default(False))
+        - hydra
+      when: (hydra_enabled | default(False))
 
     - role: sickchill
       tags:

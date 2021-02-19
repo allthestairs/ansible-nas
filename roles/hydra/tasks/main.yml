@@ -1,0 +1,32 @@
+---
+- name: Create NzbHydra Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ hydra_data_directory }}"
+
+- name: Hydra
+  docker_container:
+    name: hydra
+    image: linuxserver/nzbhydra2
+    pull: true
+    volumes:
+      - "{{ hydra_download_directory }}/complete:/downloads:rw"
+      - "{{ hydra_data_directory }}:/config:rw"
+    ports:
+      - "5076:5076"
+    env:
+      TZ: "{{ ansible_nas_timezone }}"
+      PUID: "{{ hydra_user_id }}"
+      PGID: "{{ hydra_group_id }}"
+    restart_policy: unless-stopped
+    memory: 1g
+    labels:
+      traefik.enable: "{{ hydra_available_externally }}"
+      traefik.http.routers.hydra.rule: "Host(`{{ hydra_hostname }}.{{ ansible_nas_domain }}`)"
+      traefik.http.routers.hydra.tls.certresolver: "letsencrypt"
+      traefik.http.routers.hydra.tls.domains[0].main: "{{ ansible_nas_domain }}"
+      traefik.http.routers.hydra.tls.domains[0].sans: "*.{{ ansible_nas_domain }}"
+      traefik.http.services.hydra.loadbalancer.server.port: "5076"
+      traefik.port: "5076"
